@@ -1,0 +1,9 @@
+# retain all file for source and header files
+!*.cpp
+!*.h
+!*.hpp
+
+# Exclude .vscode folder in the root directory
+/.vscode
+
+
