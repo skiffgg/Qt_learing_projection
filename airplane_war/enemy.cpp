@@ -14,3 +14,11 @@ void Enemy::EnemyMove(QPoint _dir)
     this->moveBy(_dir.x()*mMoveSpeed,_dir.y()*mMoveSpeed);
 }
 
+void Enemy::Init(QPoint _pos, QPixmap _pixmap)
+{
+    this->setPos(_pos);
+    this->setPixmap(_pixmap);
+    this->mMoveSpeed=3;
+    this->mShootSpeed=10000;
+}
+

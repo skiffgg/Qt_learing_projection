@@ -1,11 +1,11 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include <QGraphicsPixmapItem>
-#include<QDebug>
-#include<QSoundEffect>
+#include "gameobject.h"
 
-class Bullet : public QGraphicsPixmapItem
+
+
+class Bullet : public GameObject
 {
 public:
     //子弹类型
@@ -15,12 +15,13 @@ public:
         BT_Enemy//敌方
     };
 
+    explicit Bullet(QObject* parent=nullptr);
     Bullet(QPoint _pos,QPixmap _pixmap,int _type);
     void BulletMove(QPoint _dir=QPoint(0,-1));//移动函数
-    void PlaySound();
 
+    void Init(QPoint _pos,QPixmap _pixmap);//初始化函数
 
-
+protected:
     int mBulletType;
     int mSpeed;
 

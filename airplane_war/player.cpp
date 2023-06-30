@@ -1,6 +1,6 @@
-#include "myplane.h"
+#include "player.h"
 
-MyPlane::MyPlane()
+Player::Player()
 
 {
     this->setPixmap(QPixmap(":/res/img-plane_1.png"));
