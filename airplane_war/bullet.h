@@ -17,7 +17,8 @@ public:
 
     explicit Bullet(QObject* parent=nullptr);
     Bullet(QPoint _pos,QPixmap _pixmap,int _type);
-    void BulletMove(QPoint _dir=QPoint(0,-1));//移动函数
+//    void BulletMove(QPoint _dir=QPoint(0,-1));//移动函数
+    virtual void  BulletMove(QPoint _dir)=0;
 
     void Init(QPoint _pos,QPixmap _pixmap);//初始化函数
 

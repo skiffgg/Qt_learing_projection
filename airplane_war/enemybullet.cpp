@@ -3,6 +3,12 @@
 EnemyBullet::EnemyBullet(QObject *parent)
 {
     mObjectType=GameObject::OT_EnemyBullet;
+    mSpeed=3;
+}
+
+void EnemyBullet::BulletMove(QPoint _dir)
+{
+    this->moveBy(_dir.x()*mSpeed,_dir.y()*mSpeed);
 }
 
 void EnemyBullet::PlaySound()

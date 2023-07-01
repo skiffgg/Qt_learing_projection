@@ -8,6 +8,9 @@ class EnemyBullet : public Bullet
 
 public:
     explicit EnemyBullet(QObject *parent = nullptr);
+
+    void BulletMove(QPoint _dir=QPoint(0,1));
+
     void PlaySound();
 
 

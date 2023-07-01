@@ -10,15 +10,21 @@ GameObjectPool::GameObjectPool(QObject *parent)
 void GameObjectPool::Init()
 {
     //预先生产对象
-    for(int i=0;i<20;i++)
+    for(int i=0;i<50;i++)
     {
-        //子弹生产
-        PlayerBullet* bullet=new PlayerBullet();
-        mBulletpoll.append(bullet);
+        //玩家子弹生产
+        PlayerBullet* playerbullet=new PlayerBullet();
+        mPlayBulletpoll.append(playerbullet);
 
         //敌机生产
         Enemy* enemy=new Enemy();
         mEnemyPool.append(enemy);
+
+        //敌机子弹生产
+        EnemyBullet* enemybullet=new EnemyBullet();
+        mEnemyBulletpoll.append(enemybullet);
+
+
 
     }
 }
@@ -27,11 +33,11 @@ GameObject *GameObjectPool::GetGameObject(int _objectType)
 {
     switch(_objectType)
     {
-    case GameObject::OT_BulletPlayer://子弹
+    case GameObject::OT_BulletPlayer://玩家子弹
     {
-        PlayerBullet* bullet=mBulletpoll.first();
-        mBulletpoll.pop_front();
-        return bullet;
+        PlayerBullet* playerbullet=mPlayBulletpoll.first();
+        mPlayBulletpoll.pop_front();
+        return playerbullet;
     }
     case GameObject::OT_Enemy://敌机
     {
@@ -39,6 +45,12 @@ GameObject *GameObjectPool::GetGameObject(int _objectType)
         mEnemyPool.pop_front();
 
         return enemy;
+    }
+    case GameObject::OT_EnemyBullet://玩家子弹
+    {
+        EnemyBullet* enemybullet=mEnemyBulletpoll.first();
+        mEnemyBulletpoll.pop_front();
+        return enemybullet;
     }
     }
 }
@@ -49,7 +61,7 @@ void GameObjectPool::RecoveryGameObject(GameObject *_object)
     {
     case GameObject::OT_BulletPlayer://子弹
     {
-        mBulletpoll.append((PlayerBullet*)_object);
+        mPlayBulletpoll.append((PlayerBullet*)_object);
         break;
     }
     case GameObject::OT_Enemy://敌机
@@ -57,15 +69,26 @@ void GameObjectPool::RecoveryGameObject(GameObject *_object)
         mEnemyPool.append((Enemy*)_object);
         break;
     }
+    case GameObject::OT_EnemyBullet://玩家子弹
+    {
+        mEnemyBulletpoll.append((EnemyBullet*)_object);
+        break;
+    }
     }
 }
 
 void GameObjectPool::Clear()
 {
-    //清除子弹容器
-    for(auto pBullet:mBulletpoll)
+    //清除玩家子弹容器
+    for(auto pBullet:mPlayBulletpoll)
     {
         delete pBullet;
+    }
+
+    //清楚敌机子弹容器
+    for(auto EBullet:mEnemyBulletpoll)
+    {
+        delete EBullet;
     }
 
     //清除敌机容器

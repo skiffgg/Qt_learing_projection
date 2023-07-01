@@ -46,7 +46,10 @@ public:
 
 protected:
     //玩家子弹对象池容器
-    QList<PlayerBullet*> mBulletpoll;
+    QList<PlayerBullet*> mPlayBulletpoll;
+
+    //敌机子弹容器对象池
+    QList<EnemyBullet*> mEnemyBulletpoll;
 
     //敌机对象池容器
     QList<Enemy*> mEnemyPool;

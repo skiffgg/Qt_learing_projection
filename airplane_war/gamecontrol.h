@@ -50,11 +50,18 @@ public:
     //我机子弹生成函数
     void PlaneBulletShoot();
 
+    //敌机子弹生成函数
+    void EnemyBulletShoot(Enemy& enemy);//未写
+
     //敌机生成
     void CreateEnemy();
 
-    //碰撞检测
-    void Collision();
+    //我机击落敌机碰撞检测
+    void PlayerCollision();
+
+    //我机击落敌机碰撞检测
+    void EnemyCollision();
+
 
     QList<int> mKeyList;//按键组合
 
@@ -72,13 +79,18 @@ protected:
     //定时器
     QTimer* mBGMoveTimer; //背景移动定时器
     QTimer* mPlaneMoveTimer;//机移动检测定时器
-    QTimer* mPlaneShootTimer;//飞机发射定时器
-    QTimer* mBulletMoveTimer;//子弹移动定时器
+    QTimer* mPlaneShootTimer;//我机子弹发射定时器
+    QTimer* mplayerBulletMoveTimer;//我机子弹移动定时器
+    QTimer* EnemyBulletMoveTimer;//敌机机子弹移动定时器
     QTimer* mEnemyCreatTimer;//敌机创建定时器
     QTimer* mEnemyMoveTimer;//敌机移动定时器
 
+    //注：只有在创建敌机时候再开启敌机子弹发射定时器
+    QTimer* mEnemyShootTimer;
+
     //容器
-    QList<Bullet*> mBulletList;//子弹容器
+    QList<PlayerBullet*> mPlayerBulletList;//我机子弹容器
+    QList<EnemyBullet*> EnemyBulletList;//敌机子弹容器
     QList<Enemy*> mEnemyList;//敌机容器
 
     //背景音乐

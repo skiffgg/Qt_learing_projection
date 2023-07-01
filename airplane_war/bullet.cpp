@@ -15,10 +15,10 @@ Bullet::Bullet(QPoint _pos,QPixmap _pixmap, int _type)
 
 }
 
-void Bullet::BulletMove(QPoint _dir)
-{
-    this->moveBy(_dir.x()*mSpeed,_dir.y()*mSpeed);
-}
+//void Bullet::BulletMove(QPoint _dir)
+//{
+//    this->moveBy(_dir.x()*mSpeed,_dir.y()*mSpeed);
+//}
 
 
 

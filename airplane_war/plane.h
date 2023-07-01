@@ -11,9 +11,10 @@ public:
 
     virtual float MoveSpeed()=0;
 
+    int mShootSpeed;
 protected:
     float mMoveSpeed;
-    int mShootSpeed;
+
 
 signals:
 

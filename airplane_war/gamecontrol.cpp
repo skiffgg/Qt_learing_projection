@@ -38,9 +38,10 @@ void GameControl::GameInit()
     mBGMoveTimer=new QTimer(this);
     mPlaneMoveTimer=new QTimer(this);
     mPlaneShootTimer=new QTimer(this);
-    mBulletMoveTimer=new QTimer(this);
+    mplayerBulletMoveTimer=new QTimer(this);
     mEnemyCreatTimer=new QTimer(this);
     mEnemyMoveTimer=new QTimer(this);
+    EnemyBulletMoveTimer=new QTimer(this);
 
     //绑定定时器处理函数
     connect(mBGMoveTimer,&QTimer::timeout,[=](){
@@ -55,29 +56,46 @@ void GameControl::GameInit()
         this->PlaneBulletShoot();
     });
 
-    connect(mBulletMoveTimer,&QTimer::timeout,this,[=](){
-        for(auto bullet: mBulletList)
+    connect(mplayerBulletMoveTimer,&QTimer::timeout,this,[=](){
+        for(auto plyerbullet: mPlayerBulletList)
         {
-            bullet->BulletMove();
+            plyerbullet->BulletMove();
 
             //判断越界回收
-            if(bullet->y()<-200)
+            if(plyerbullet->y()<-200)
             {
                 //移除场景 对象池回收对象
-                bullet->GameObjectDelete(&mGameScene);
+                plyerbullet->GameObjectDelete(&mGameScene);
 
 
                 //移除容器
-                mBulletList.removeOne(bullet);
-
-
-
-
+                mPlayerBulletList.removeOne(plyerbullet);
             }
         }
 
-        //碰撞检测
-        Collision();
+        //我机子弹碰撞敌机检测
+        PlayerCollision();
+    });
+
+    connect(EnemyBulletMoveTimer,&QTimer::timeout,this,[=](){
+        for(auto enemybullet: EnemyBulletList)
+        {
+            enemybullet->BulletMove();
+
+            //判断越界回收
+            if(enemybullet->y()>500)
+            {
+                //移除场景 对象池回收对象
+                enemybullet->GameObjectDelete(&mGameScene);
+
+
+                //移除容器
+                EnemyBulletList.removeOne(enemybullet);
+            }
+        }
+
+        //敌机子弹碰撞我机检测
+        EnemyCollision();
     });
 
     connect(mEnemyCreatTimer,&QTimer::timeout,this,[=](){
@@ -97,9 +115,6 @@ void GameControl::GameInit()
 
                 //移除容器
                 mEnemyList.removeOne(enemy);
-
-
-
             }
         }
     });
@@ -174,9 +189,10 @@ void GameControl::GameStart()
     mBGMoveTimer->start(GameDefine::BackgroundUpdateTime);
     mPlaneMoveTimer->start(GameDefine::PlayerMoveUpdateTime);
     mPlaneShootTimer->start(GameDefine::PlaneShootUpdateTime);
-    mBulletMoveTimer->start(GameDefine::BulletMoveUpdateTime);
+    mplayerBulletMoveTimer->start(GameDefine::BulletMoveUpdateTime);
     mEnemyCreatTimer->start(GameDefine::EnemyCreatTime);
     mEnemyMoveTimer->start(GameDefine::EnemyMoveUpdateTime);
+    EnemyBulletMoveTimer->start(GameDefine::BulletMoveUpdateTime);
 }
 
 void GameControl::GameOver()
@@ -240,7 +256,24 @@ void GameControl::PlaneBulletShoot()
 
     mGameScene.addItem(bullet);//添加到场景
 
-    mBulletList.append(bullet); //添加到子弹管理器
+    mPlayerBulletList.append(bullet); //添加到子弹管理器
+}
+
+void GameControl::EnemyBulletShoot(Enemy& enemy)
+{
+    //对象池构建子弹
+    QPixmap bulletImg(":/res/bullet_11.png");
+
+    QPoint pos(enemy.x()+enemy.pixmap().width()/2,
+               enemy.y());
+    GameObject* obj=GameObjectPool::Instance()->GetGameObject(GameObject::OT_EnemyBullet);
+    EnemyBullet* enemyBullet=(EnemyBullet* )obj;
+    enemyBullet->Init(pos,bulletImg);
+    enemyBullet->PlaySound();//播放音效
+
+    mGameScene.addItem(enemyBullet);//添加到场景
+
+    EnemyBulletList.append(enemyBullet); //添加到子弹管理器
 }
 
 
@@ -263,37 +296,107 @@ void GameControl::CreateEnemy()
 
     GameObject* obj=GameObjectPool::Instance()->GetGameObject(GameObject::OT_Enemy);
     Enemy* enemy=(Enemy*)obj;
-    enemy->Init(QPoint(randX,-200),scaledPixmap);
+    enemy->Init(QPoint(randX,-50),scaledPixmap);
 
     //添加到场景
     mGameScene.addItem(enemy);
 
     //添加到管理容器
     mEnemyList.append(enemy);
+
+
+//    //敌机的子弹生成射击函数 从对象池中拿到
+//    mEnemyShootTimer=new QTimer(this);
+//    mEnemyShootTimer->start(enemy->mShootSpeed);
+
+//    connect(mEnemyShootTimer,&QTimer::timeout,this,[=](){
+//        this->EnemyBulletShoot(*enemy);
+//    });
+    EnemyBulletShoot(*enemy);
+
 }
 
-void GameControl::Collision()
+void GameControl::PlayerCollision()
 {
-    //遍历子弹
-    for(int i=0;i<mBulletList.size();i++)
+    //遍历敌机子弹
+    for(int i=0;i<mPlayerBulletList.size();i++)
     {
+//        for(int j=0;j<EnemyBulletList.size();j++)
+//        {
+//            if(EnemyBulletList[j]->collidesWithItem(mPlayerBulletList[i]))//敌机和我机子弹碰撞检测
+//            {
+//                //移除场景并回收到对象池
+//                EnemyBulletList[j]->GameObjectDelete(&mGameScene);
+//                mPlayerBulletList[i]->GameObjectDelete(&mGameScene);
+
+
+//                //移除管理器
+//                EnemyBulletList.removeOne(EnemyBulletList[j]);
+//                mPlayerBulletList.removeOne(mPlayerBulletList[i]);
+
+
+//                break;
+
+//            }
+//        }
         //遍历敌机
-        for(int j=0;j<mEnemyList.size();j++)
-        {
-            if(mBulletList[i]->collidesWithItem(mEnemyList[j])) //碰撞检测
+
+            for(int j=0;j<mEnemyList.size();j++)
             {
-                //移除场景  (实际的对象并没有被删除)
-//                mGameScene.removeItem(mBulletList[i]);
-//                mGameScene.removeItem(mEnemyList[j]);
+                if(mPlayerBulletList[i]->collidesWithItem(mEnemyList[j])) //碰撞检测
+                {
+                    //移除场景  (实际的对象并没有被删除)
+                    //                mGameScene.removeItem(mBulletList[i]);
+                    //                mGameScene.removeItem(mEnemyList[j]);
 
-                //移除场景并回收到对象池
-                mBulletList[i]->GameObjectDelete(&mGameScene);
-                mEnemyList[j]->GameObjectDelete(&mGameScene);
+                    //移除场景并回收到对象池
+                    mPlayerBulletList[i]->GameObjectDelete(&mGameScene);
+                    mEnemyList[j]->GameObjectDelete(&mGameScene);
 
-                //移除管理器
-                mBulletList.removeOne(mBulletList[i]);
-                mEnemyList.removeOne(mEnemyList[j]);
+                    //移除管理器
+                    mPlayerBulletList.removeOne(mPlayerBulletList[i]);
+                    mEnemyList.removeOne(mEnemyList[j]);
+                }
+            }
+        }
+
+
+}
+
+void GameControl::EnemyCollision()
+{
+    //遍历我机
+    for(int i=0;i<EnemyBulletList.size();i++)
+    {
+        if(EnemyBulletList[i]->collidesWithItem(&mPlane))
+        {
+            //我机移除场景
+            mGameScene.removeItem(&mPlane);
+            //移除场景并回收到对象池
+            EnemyBulletList[i]->GameObjectDelete(&mGameScene);
+            //移除管理器
+            EnemyBulletList.removeOne(EnemyBulletList[i]);
+            break;
+
+        }
+
+        for(int j=0;j<mPlayerBulletList.size();j++)
+        {
+            if(EnemyBulletList[i]->collidesWithItem(mPlayerBulletList[j]))//敌机和我机子弹碰撞检测
+            {
+                    //移除场景并回收到对象池
+                    EnemyBulletList[i]->GameObjectDelete(&mGameScene);
+                    mPlayerBulletList[j]->GameObjectDelete(&mGameScene);
+
+
+                    //移除管理器
+                    EnemyBulletList.removeOne(EnemyBulletList[i]);
+                    mPlayerBulletList.removeOne(mPlayerBulletList[j]);
+
             }
         }
     }
+
+
+
 }

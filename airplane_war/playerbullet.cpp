@@ -6,6 +6,11 @@ PlayerBullet::PlayerBullet(QObject *parent)
     mSpeed=6;
 }
 
+void PlayerBullet::BulletMove(QPoint _dir)
+{
+    this->moveBy(_dir.x()*mSpeed,_dir.y()*mSpeed);
+}
+
 
 void PlayerBullet::PlaySound()
 {
